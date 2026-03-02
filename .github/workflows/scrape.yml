@@ -1,0 +1,32 @@
+name: Bingo Auto Scraper
+
+on:
+  schedule:
+    - cron: '*/7 * * * *' # 每 7 分鐘自動執行一次
+  workflow_dispatch:      # 允許您手動點擊執行
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 檢查程式碼
+        uses: actions/checkout@v3
+      - name: 設定 Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      - name: 安裝瀏覽器環境
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
+      - name: 安裝必要套件
+        run: pip install selenium webdriver-manager beautifulsoup4
+      - name: 執行爬蟲
+        run: python bg.py
+      - name: 儲存並推送到倉庫
+        run: |
+          git config --global user.name "BingoBot"
+          git config --global user.email "bot@github.com"
+          git add history.json
+          git commit -m "🤖 自動更新開獎數據" || exit 0
+          git push
