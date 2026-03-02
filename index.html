@@ -2,10 +2,12 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>數字 AI 分析儀 - 雲端版</title>
+    <title>數字 AI 分析儀 - Firebase 即時版</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <style>
-        /* 強制全站基礎字體至少 16px，確保易讀性 */
+        /* 強制全站基礎字體至少 16px */
         html, body { font-size: 16px; } 
         .ball { width: 44px; height: 44px; font-size: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; position: relative; }
         sub { font-size: 0.7rem; position: absolute; bottom: 2px; right: 4px; font-weight: 900; }
@@ -18,12 +20,16 @@
         <header class="bg-slate-800 p-6 rounded-xl border border-slate-700 flex justify-between items-center shadow-lg">
             <div>
                 <h1 class="text-2xl font-bold text-yellow-500">🎰 數字 AI 分析儀</h1>
-                <p id="cur-period" class="text-indigo-400 font-mono text-lg mt-1 tracking-tight">正在連線雲端...</p>
+                <p id="cur-period" class="text-indigo-400 font-mono text-lg mt-1 tracking-tight">正在連線 Firebase...</p>
                 <p id="update-time" class="text-emerald-400 font-bold text-base mt-1 italic">最後更新：讀取中...</p>
             </div>
-            <button onclick="loadData()" id="refresh-btn" class="bg-emerald-600 hover:bg-emerald-700 px-6 py-3 rounded-lg font-bold shadow-lg text-lg transition-all active:scale-95">
-                🔄 刷新最新數據
-            </button>
+            <div class="bg-indigo-900/50 text-indigo-300 px-4 py-2 rounded-lg border border-indigo-500/50 flex items-center gap-2">
+                <span class="relative flex h-3 w-3">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                </span>
+                <span class="font-bold text-lg">雲端即時同步中</span>
+            </div>
         </header>
 
         <div class="bg-slate-800 p-6 rounded-2xl border-l-8 border-indigo-400 shadow-xl">
@@ -77,6 +83,22 @@
     </div>
 
     <script>
+        // 1. Firebase 配置資訊 (已根據您提供的資料填寫)
+        const firebaseConfig = {
+            apiKey: "AIzaSyB-udYSuPiA2CVOaFHW45O0i2DN_loc7lo",
+            authDomain: "bingo-ai-360ad.firebaseapp.com",
+            databaseURL: "https://bingo-ai-360ad-default-rtdb.firebaseio.com",
+            projectId: "bingo-ai-360ad",
+            storageBucket: "bingo-ai-360ad.firebasestorage.app",
+            messagingSenderId: "613330768290",
+            appId: "1:613330768290:web:a17d981e96fbc7726622fb",
+            measurementId: "G-2Y2KQYMYGX"
+        };
+        
+        // 初始化 Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
         let fullHistory = [];
         let currentLimit = 10;
         let strat = 'hot';
@@ -91,27 +113,24 @@
             n7: "<b>N7 5熱：</b>近 5 期內強勢號碼。"
         };
 
-        async function loadData() {
-            const btn = document.getElementById('refresh-btn');
-            const timeDisplay = document.getElementById('update-time');
-            btn.innerText = "⏳ 讀取中...";
-            try {
-                // 強制跳過快取讀取最新 history.json
-                const res = await fetch('history.json?t=' + Date.now());
-                const data = await res.json();
-                
-                // 相容新舊結構
-                fullHistory = data.records || data; 
-                timeDisplay.innerText = "最後更新時間：" + (data.last_update || "未知");
-                
-                renderAll();
-                btn.innerText = "🔄 刷新最新數據";
-            } catch (e) {
-                document.getElementById('cur-period').innerText = "數據初始化中...";
-                btn.innerText = "🔄 重試刷新";
-            }
+        // 2. 實時數據監聽：數據一變動，畫面立刻重新渲染
+        function initRealtimeSync() {
+            const dataRef = database.ref('bingo_data');
+            dataRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    fullHistory = data.records || [];
+                    document.getElementById('update-time').innerText = "最後更新時間：" + (data.last_update || "未知");
+                    renderAll();
+                    console.log("⚡ 雲端數據已即時同步更新");
+                }
+            }, (error) => {
+                console.error("Firebase 連線失敗:", error);
+                document.getElementById('cur-period').innerText = "連線失敗，請檢查 Firebase 規則。";
+            });
         }
 
+        // 渲染畫面邏輯
         function renderAll() {
             if (!fullHistory || !fullHistory.length) return;
             const history = fullHistory.slice(0, currentLimit);
@@ -132,6 +151,7 @@
             renderProbabilityRank(history);
         }
 
+        // 屬性分析運算 (N1-N7)
         function calculateNGroups(history, counts) {
             const all = Array.from({length: 80}, (_, i) => (i+1).toString().padStart(2, '0'));
             const last = history[0].numbers;
@@ -165,6 +185,7 @@
             };
         }
 
+        // 核心 6 球預測
         function renderPrediction(counts, groups) {
             let used = [];
             const pick = (g, c) => {
@@ -185,6 +206,7 @@
                 </div>`).join('');
         }
 
+        // 星級推薦
         function renderStars(groups) {
             const pickNum = (k, c) => groups[k].map(i => i.num).sort(() => 0.5 - Math.random()).slice(0, c);
             const stars = {
@@ -200,6 +222,7 @@
                 </div>`).join('');
         }
 
+        // 攻略推薦 (G1-G4)
         function renderStrategies(history, groups) {
             const last = history[0].numbers;
             const tails = new Set();
@@ -216,6 +239,7 @@
                 `<div class="pb-2 border-b border-slate-700 font-bold"><span class="text-slate-400">${labels[k]}:</span> <span class="text-yellow-500 ml-2">${v.join(' ')}</span></div>`).join('');
         }
 
+        // N1-N7 號碼顯示
         function renderNGroups(groups) {
             document.getElementById('n-groups').innerHTML = Object.entries(nDefs).map(([k, def]) => `
                 <div class="border-b border-slate-700 pb-4">
@@ -226,6 +250,7 @@
                 </div>`).join('');
         }
 
+        // 歷史清單
         function renderHistoryList(history) {
             document.getElementById('history-container').innerHTML = history.map(h => `
                 <div class="flex flex-col md:flex-row bg-slate-900/40 p-3 rounded-lg border border-slate-700/50 hover:bg-slate-800 transition-colors">
@@ -234,6 +259,7 @@
                 </div>`).join('');
         }
 
+        // 出現機率排行榜
         function renderProbabilityRank(history) {
             let counts = {};
             history.map(h => h.numbers).flat().forEach(n => counts[n] = (counts[n] || 0) + 1);
@@ -246,11 +272,14 @@
                 </div>`).join('');
         }
 
+        // 工具函式
         function changeLimit(l) { currentLimit = l; updateLimitUI(l); renderAll(); }
         function applyCustomLimit() { const v = document.getElementById('custom-limit').value; if (v > 0) { currentLimit = parseInt(v); updateLimitUI(null); renderAll(); } }
         function updateLimitUI(l) { document.querySelectorAll('.limit-btn').forEach(b => b.classList.remove('limit-active')); if(l) document.getElementById(`btn-limit-${l}`).classList.add('limit-active'); }
         function setStrat(s) { strat = s; document.querySelectorAll('.strat-btn').forEach(b => b.classList.remove('ring-4', 'ring-white/50')); document.getElementById('btn-' + s).classList.add('ring-4', 'ring-white/50'); renderAll(); }
-        window.onload = loadData;
+        
+        // 啟動即時監聽
+        window.onload = initRealtimeSync;
     </script>
 </body>
 </html>
