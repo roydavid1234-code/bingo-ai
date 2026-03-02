@@ -2,8 +2,8 @@ name: Bingo Auto Scraper
 
 on:
   schedule:
-    - cron: '*/7 * * * *' # 每 7 分鐘自動執行一次
-  workflow_dispatch:      # 允許您手動點擊執行
+    - cron: '*/6 * * * *' # 這裡改為每 6 分鐘執行一次
+  workflow_dispatch:
 
 jobs:
   scrape:
