@@ -11,23 +11,23 @@ from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup
 
-# Firebase 初始化設定
-# 請確保 GitHub Secrets 已設定 FIREBASE_CONFIG
+# 1. Firebase 初始化設定
+# 從 GitHub Secrets 讀取您上傳的私密金鑰 JSON
 cred_json_str = os.environ.get('FIREBASE_CONFIG')
 if not cred_json_str:
-    print("❌ 錯誤：找不到 FIREBASE_CONFIG 環境變數，請檢查 GitHub Secrets 設定。")
+    print("❌ 錯誤：找不到 FIREBASE_CONFIG 環境變數，請檢查 GitHub Secrets。")
     exit(1)
 
 cred = credentials.Certificate(json.loads(cred_json_str))
 firebase_admin.initialize_app(cred, {
-    'databaseURL': 'https://bingo-ai-360ad-default-rtdb.firebaseio.com' # 已根據您的配置填寫
+    'databaseURL': 'https://bingo-ai-360ad-default-rtdb.firebaseio.com' # 已為您填寫
 })
 
 MAX_HISTORY = 10
 
 def fetch_bingo_now():
     chrome_options = Options()
-    chrome_options.add_argument("--headless=new")
+    chrome_options.add_argument("--headless=new") # 雲端執行必須開啟
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
     
@@ -35,15 +35,15 @@ def fetch_bingo_now():
     url = "https://lotto.auzonet.com/bingobingoV1.php"
     
     try:
-        print(f"🚀 啟動爬蟲，前往：{url}")
+        print(f"🚀 啟動爬蟲任務...")
         driver.get(url)
-        time.sleep(12) 
+        time.sleep(12) # 等待數據載入
         
         soup = BeautifulSoup(driver.page_source, "html.parser")
         driver.quit()
         
         new_records = []
-        rows = soup.find_all("tr", class_=re.compile(r"list_tr|list_tr2"))
+        rows = soup.find_all("tr", class_=re.compile(r"list_tr|list_tr2")) # 抓取開獎行
 
         for row in rows:
             if len(new_records) >= MAX_HISTORY: break
@@ -61,20 +61,18 @@ def fetch_bingo_now():
                 new_records.append({"period": period, "numbers": found_nums[:20]})
 
         if new_records:
-            # 將數據同步至 Firebase
+            # 2. 推送到 Firebase 雲端資料庫
             ref = db.reference('bingo_data')
             data_to_save = {
                 "last_update": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                 "records": new_records
             }
             ref.set(data_to_save)
-            print(f"🔥 Firebase 同步成功！最後更新時間：{data_to_save['last_update']}")
+            print(f"🔥 Firebase 同步成功！時間：{data_to_save['last_update']}")
             return True
-        else:
-            print("⚠️ 抓取成功但未找到開獎數據。")
-            return False
+        return False
     except Exception as e:
-        print(f"⚠️ 爬蟲發生錯誤: {e}")
+        print(f"⚠️ 發生錯誤: {e}")
         return False
 
 if __name__ == "__main__":
