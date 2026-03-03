@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>數字 AI 分析儀 - 攻略擴充版</title>
+    <title>數字 AI 分析儀 - 屬性分析回歸版</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
@@ -13,43 +13,41 @@
         sub { font-size: 0.7rem; position: absolute; bottom: 2px; right: 4px; font-weight: 900; }
         .limit-active { background-color: #4f46e5 !important; border-color: #818cf8 !important; box-shadow: 0 0 10px rgba(129, 140, 248, 0.4); }
         .count-active { background-color: #eab308 !important; border-color: #fde047 !important; color: #0f172a !important; transform: scale(1.05); box-shadow: 0 0 10px rgba(234, 179, 8, 0.4); }
+        .expert-count-active { background-color: #38bdf8 !important; border-color: #7dd3fc !important; color: #0f172a !important; transform: scale(1.05); }
+        .use-strat-btn { font-size: 0.75rem; padding: 2px 8px; border-radius: 4px; border: 1px solid #475569; transition: all 0.2s; }
+        .use-strat-btn:hover { background-color: #fca311; color: #14213d; border-color: #fca311; font-weight: bold; }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-200 p-4 font-sans leading-relaxed">
     <div class="max-w-3xl mx-auto space-y-8">
         <header class="bg-slate-800 p-6 rounded-xl border border-slate-700 flex flex-col md:flex-row justify-between items-center gap-4 shadow-lg">
             <div class="flex-1">
-                <h1 class="text-2xl font-bold text-yellow-400 flex items-center gap-2">🎰 數字 AI 分析儀</h1>
-                 <h3 class="text-sm font-bold text-red-400 flex items-center gap-2 mt-2">以上信息僅供參考，使用前請自行確認其準確性</h3>
-                 <h3 class="text-sm font-bold text-red-400 flex items-center gap-2">本內容僅供參考，使用者需自行承擔風險</h3>
- 
+                <h1 class="text-2xl font-bold text-yellow-400 flex items-center gap-2"> 數字 AI 分析儀</h1>
+                 <h3 class="text-sm font-bold text-red-400 mt-2">以上信息僅供參考，使用前請自行確認其準確性。使用者需自行承擔風險。</h3>
                 <p id="cur-period" class="text-indigo-400 font-mono text-lg mt-4 tracking-tight">連線中...</p>
                 <p id="update-time" class="text-emerald-400 font-bold text-base mt-1 italic">等待數據同步...</p>
             </div>
-            
-            <div class="flex flex-col items-end gap-3">
-                <div class="bg-indigo-900/30 text-indigo-300 px-3 py-1 rounded-full border border-indigo-500/30 flex items-center gap-2 text-xs">
-                    <span class="relative flex h-2 w-2">
-                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                      <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                    </span>
-                    雲端即時同步中
-                </div>
+            <div class="bg-indigo-900/30 text-indigo-300 px-3 py-1 rounded-full border border-indigo-500/30 flex items-center gap-2 text-xs">
+                <span class="relative flex h-2 w-2">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                雲端即時同步中
             </div>
         </header>
 
         <div class="bg-slate-800 p-6 rounded-2xl border-l-8 border-indigo-400 shadow-xl">
             <h3 class="text-xl font-bold text-indigo-300 mb-4 flex items-center gap-2">數據分析範圍 (期數切換)</h3>
             <div class="grid grid-cols-5 gap-2 md:gap-3 text-sm">
-                <button onclick="changeLimit(1)" id="btn-limit-1" class="limit-btn bg-slate-700 py-2 rounded-lg font-bold hover:bg-indigo-600 transition-all border border-transparent">近 1 期</button>
-                <button onclick="changeLimit(2)" id="btn-limit-2" class="limit-btn bg-slate-700 py-2 rounded-lg font-bold hover:bg-indigo-600 transition-all border border-transparent">近 2 期</button>
-                <button onclick="changeLimit(3)" id="btn-limit-3" class="limit-btn bg-slate-700 py-2 rounded-lg font-bold hover:bg-indigo-600 transition-all border border-transparent">近 3 期</button>
-                <button onclick="changeLimit(4)" id="btn-limit-4" class="limit-btn bg-slate-700 py-2 rounded-lg font-bold hover:bg-indigo-600 transition-all border border-transparent">近 4 期</button>
-                <button onclick="changeLimit(5)" id="btn-limit-5" class="limit-btn bg-slate-700 py-2 rounded-lg font-bold hover:bg-indigo-600 transition-all border border-transparent">近 5 期</button>
-                <button onclick="changeLimit(6)" id="btn-limit-6" class="limit-btn bg-slate-700 py-2 rounded-lg font-bold hover:bg-indigo-600 transition-all border border-transparent">近 6 期</button>
-                <button onclick="changeLimit(7)" id="btn-limit-7" class="limit-btn bg-slate-700 py-2 rounded-lg font-bold hover:bg-indigo-600 transition-all border border-transparent">近 7 期</button>
-                <button onclick="changeLimit(8)" id="btn-limit-8" class="limit-btn bg-slate-700 py-2 rounded-lg font-bold hover:bg-indigo-600 transition-all border border-transparent">近 8 期</button>
-                <button onclick="changeLimit(9)" id="btn-limit-9" class="limit-btn bg-slate-700 py-2 rounded-lg font-bold hover:bg-indigo-600 transition-all border border-transparent">近 9 期</button>
+                <button onclick="changeLimit(1)" id="btn-limit-1" class="limit-btn bg-slate-700 py-2 rounded-lg font-bold border border-transparent">近 1 期</button>
+                <button onclick="changeLimit(2)" id="btn-limit-2" class="limit-btn bg-slate-700 py-2 rounded-lg font-bold border border-transparent">近 2 期</button>
+                <button onclick="changeLimit(3)" id="btn-limit-3" class="limit-btn bg-slate-700 py-2 rounded-lg font-bold border border-transparent">近 3 期</button>
+                <button onclick="changeLimit(4)" id="btn-limit-4" class="limit-btn bg-slate-700 py-2 rounded-lg font-bold border border-transparent">近 4 期</button>
+                <button onclick="changeLimit(5)" id="btn-limit-5" class="limit-btn bg-slate-700 py-2 rounded-lg font-bold border border-transparent">近 5 期</button>
+                <button onclick="changeLimit(6)" id="btn-limit-6" class="limit-btn bg-slate-700 py-2 rounded-lg font-bold border border-transparent">近 6 期</button>
+                <button onclick="changeLimit(7)" id="btn-limit-7" class="limit-btn bg-slate-700 py-2 rounded-lg font-bold border border-transparent">近 7 期</button>
+                <button onclick="changeLimit(8)" id="btn-limit-8" class="limit-btn bg-slate-700 py-2 rounded-lg font-bold border border-transparent">近 8 期</button>
+                <button onclick="changeLimit(9)" id="btn-limit-9" class="limit-btn bg-slate-700 py-2 rounded-lg font-bold border border-transparent">近 9 期</button>
                 <button onclick="changeLimit(10)" id="btn-limit-10" class="limit-btn limit-active py-2 rounded-lg font-bold border">近 10 期</button>
             </div>
         </div>
@@ -57,41 +55,48 @@
         <div class="bg-slate-800 p-6 rounded-2xl border-l-8 border-rose-500 shadow-xl">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div>
-                    <h3 id="top-title" class="text-xl font-bold text-rose-400 mb-4 flex items-center gap-2">📈 近10期-出現機率排行榜 (Top 10)</h3>
+                    <h3 id="top-title" class="text-xl font-bold text-rose-400 mb-4">📈 近10期-出現機率排行榜 (Top 10)</h3>
                     <div id="prob-rank" class="space-y-2 text-lg">尚未載入數據</div>
                 </div>
                 <div>
-                    <h3 id="low-title" class="text-xl font-bold text-blue-400 mb-4 flex items-center gap-2">📉 近10期-冷門號碼排行榜 (Low 10)</h3>
+                    <h3 id="low-title" class="text-xl font-bold text-blue-400 mb-4">📉 近10期-冷門號碼排行榜 (Low 10)</h3>
                     <div id="prob-low-rank" class="space-y-2 text-lg">尚未載入數據</div>
                 </div>
             </div>
         </div>
 
         <div class="bg-slate-800 p-8 rounded-2xl border-t-8 border-yellow-500 shadow-2xl">
-            <h2 class="text-xl font-bold text-yellow-500 mb-2 text-center tracking-widest">🔮 AI 核心預測</h2>
-            <p class="text-center text-slate-400 text-xs mb-6">小數點 是該x期內出現的次數 🔮科學的盡頭是玄學</p>
-            
-            <div class="flex flex-wrap justify-center gap-2 mb-8">
-                <button onclick="changeBallCount(1)" id="btn-count-1" class="count-btn bg-slate-700 px-4 py-2 rounded-lg font-bold hover:bg-yellow-500 transition-all border border-transparent">1球</button>
-                <button onclick="changeBallCount(2)" id="btn-count-2" class="count-btn bg-slate-700 px-4 py-2 rounded-lg font-bold hover:bg-yellow-500 transition-all border border-transparent">2球</button>
-                <button onclick="changeBallCount(3)" id="btn-count-3" class="count-btn bg-slate-700 px-4 py-2 rounded-lg font-bold hover:bg-yellow-500 transition-all border border-transparent">3球</button>
-                <button onclick="changeBallCount(4)" id="btn-count-4" class="count-btn bg-slate-700 px-4 py-2 rounded-lg font-bold hover:bg-yellow-500 transition-all border border-transparent">4球</button>
-                <button onclick="changeBallCount(5)" id="btn-count-5" class="count-btn bg-slate-700 px-4 py-2 rounded-lg font-bold hover:bg-yellow-500 transition-all border border-transparent">5球</button>
-                <button onclick="changeBallCount(6)" id="btn-count-6" class="count-btn count-active px-4 py-2 rounded-lg font-bold border border-transparent">6球</button>
+                    <h2 class="text-xl font-bold text-yellow-500 mb-2 text-center tracking-widest">🔮 AI 核心預測</h2>
+                    <p class="text-center text-slate-400 text-xs mb-6">小數點 是該x期內出現的次數 🔮科學的盡頭是玄學</p>
+                <div class="flex flex-wrap justify-center gap-2 mb-8">
+                <button onclick="changeBallCount(1)" id="btn-count-1" class="count-btn bg-slate-700 px-4 py-2 rounded-lg font-bold border">1球</button>
+                <button onclick="changeBallCount(2)" id="btn-count-2" class="count-btn bg-slate-700 px-4 py-2 rounded-lg font-bold border">2球</button>
+                <button onclick="changeBallCount(3)" id="btn-count-3" class="count-btn bg-slate-700 px-4 py-2 rounded-lg font-bold border">3球</button>
+                <button onclick="changeBallCount(4)" id="btn-count-4" class="count-btn bg-slate-700 px-4 py-2 rounded-lg font-bold border">4球</button>
+                <button onclick="changeBallCount(5)" id="btn-count-5" class="count-btn bg-slate-700 px-4 py-2 rounded-lg font-bold border">5球</button>
+                <button onclick="changeBallCount(6)" id="btn-count-6" class="count-btn count-active px-4 py-2 rounded-lg font-bold border">6球</button>
             </div>
-
             <div id="pred-box" class="flex flex-wrap justify-center gap-4 mb-8"></div>
-            
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <button onclick="setStrat('hot')" id="btn-hot" class="strat-btn bg-orange-600 p-3 rounded-xl font-bold text-base ring-4 ring-white/50">🔥 追熱門</button>
-                <button onclick="setStrat('balanced')" id="btn-balanced" class="strat-btn bg-emerald-600 p-3 rounded-xl font-bold text-base">⚖️ 均衡</button>
-                <button onclick="setStrat('luck')" id="btn-luck" class="strat-btn bg-purple-600 p-3 rounded-xl font-bold text-base">🎲 拼運氣</button>
-                <button onclick="setStrat('random')" id="btn-random" class="strat-btn bg-blue-600 p-3 rounded-xl font-bold text-base">🌀 AI隨便挑</button>
+                <button onclick="setStrat('hot')" id="btn-hot" class="strat-btn bg-orange-600 p-3 rounded-xl font-bold ring-4 ring-white/50">🔥 追熱門</button>
+                <button onclick="setStrat('balanced')" id="btn-balanced" class="strat-btn bg-emerald-600 p-3 rounded-xl font-bold">⚖️ 均衡</button>
+                <button onclick="setStrat('luck')" id="btn-luck" class="strat-btn bg-purple-600 p-3 rounded-xl font-bold">🎲 拼運氣</button>
+                <button onclick="setStrat('random')" id="btn-random" class="strat-btn bg-blue-600 p-3 rounded-xl font-bold">🌀 AI隨便挑</button>
             </div>
         </div>
 
         <div class="bg-slate-800 p-6 rounded-xl border-l-8 border-yellow-500 shadow-lg">
-            <h3 class="text-xl font-bold text-yellow-500 mb-4">💡 脆友的攻略推薦</h3>
+            <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                <h3 id="expert-title" class="text-xl font-bold text-yellow-500">💡 脆友的攻略推薦</h3>
+                <div class="flex gap-1 bg-slate-900/50 p-1 rounded-lg">
+                    <button onclick="changeExpertBallCount(1)" id="eb-1" class="eb-btn px-3 py-1 rounded text-xs font-bold border border-transparent">1球</button>
+                    <button onclick="changeExpertBallCount(2)" id="eb-2" class="eb-btn px-3 py-1 rounded text-xs font-bold border border-transparent">2球</button>
+                    <button onclick="changeExpertBallCount(3)" id="eb-3" class="eb-btn expert-count-active px-3 py-1 rounded text-xs font-bold border border-transparent">3球</button>
+                    <button onclick="changeExpertBallCount(4)" id="eb-4" class="eb-btn px-3 py-1 rounded text-xs font-bold border border-transparent">4球</button>
+                    <button onclick="changeExpertBallCount(5)" id="eb-5" class="eb-btn px-3 py-1 rounded text-xs font-bold border border-transparent">5球</button>
+                    <button onclick="changeExpertBallCount(6)" id="eb-6" class="eb-btn px-3 py-1 rounded text-xs font-bold border border-transparent">6球</button>
+                </div>
+            </div>
             <div id="strat-logic" class="space-y-4 text-lg"></div>
         </div>
 
@@ -125,10 +130,15 @@
         let currentLimit = 10;
         let strat = 'hot';
         let currentBallCount = 6;
+        let expertBallCount = 3;
+        let expertPicks = null;
+
+        function shuffle(array) {
+            return array.sort(() => Math.random() - 0.5);
+        }
 
         function initRealtimeSync() {
-            const dataRef = database.ref('bingo_data');
-            dataRef.on('value', (snapshot) => {
+            database.ref('bingo_data').on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
                     fullHistory = data.records || [];
@@ -139,190 +149,153 @@
             });
         }
 
-        function renderAll() {
-            if (!fullHistory.length) return;
-            const history = fullHistory.slice(0, currentLimit);
-            const numsOnly = history.map(h => h.numbers);
-            let counts = {};
-            numsOnly.flat().forEach(n => counts[n] = (counts[n] || 0) + 1);
-            const groups = calculateNGroups(history, counts);
-            renderPrediction(counts, groups);
-            renderStrategies();
-            renderNGroups(groups);
-            renderHistoryList(history);
-            renderProbabilityRank(history);
-        }
-
+        // 核心邏輯：計算各號碼屬性分組
         function calculateNGroups(history, counts) {
             const all = Array.from({length: 80}, (_, i) => (i+1).toString().padStart(2, '0'));
             const last = history[0].numbers;
             const last2 = history[0].numbers.concat(history[1] ? history[1].numbers : []);
             const counts5 = {};
-            history.slice(0, 5).map(h => h.numbers).flat().forEach(n => counts5[n] = (counts5[n]||0)+1);
-            const n1 = all.filter(n => counts[n] >= 2 && counts[n] <= 3);
-            const n2 = all.filter(n => counts[n] === 2 && !last.includes(n));
-            const n3 = Array.from(new Set(last.slice(0, 5).flatMap(n => [((parseInt(n)+1)%80||80).toString().padStart(2, '0')])));
-            const n5 = all.sort((a, b) => fullHistory.findIndex(h => h.numbers.includes(a)) - fullHistory.findIndex(h => h.numbers.includes(b))).reverse().slice(0, 15);
-            const n6 = all.filter(n => parseInt(n) <= 10 && !last2.includes(n));
-            const n7 = all.filter(n => counts5[n] >= 2);
-            const rnd = (arr) => arr.sort(() => 0.5 - Math.random()).slice(0, 10);
+            fullHistory.slice(0, 5).map(h => h.numbers).flat().forEach(n => counts5[n] = (counts5[n]||0)+1);
+
+            const rnd = (arr) => shuffle([...arr]).slice(0, 10);
+            
             return {
-                n1: rnd(n1).map(n => ({num: n, count: counts[n]||0})),
-                n2: rnd(n2).map(n => ({num: n, count: counts[n]||0})),
-                n3: rnd(n3).map(n => ({num: n, count: counts[n]||0})),
-                n4: rnd(all.filter(n => counts[n] >= 2)).map(n => ({num: n, count: counts[n]||0})),
-                n5: rnd(n5).map(n => ({num: n, count: counts[n]||0})),
-                n6: rnd(n6).map(n => ({num: n, count: counts[n]||0})),
-                n7: rnd(n7).map(n => ({num: n, count: counts[n]||0}))
+                n1: rnd(all.filter(n => counts[n] >= 2)).map(n => ({num: n, count: counts[n]})),
+                n2: rnd(all.filter(n => counts[n] === 2 && !last.includes(n))).map(n => ({num: n, count: counts[n]})),
+                n3: rnd(last).map(n => ({num: n, count: counts[n]})),
+                n4: rnd(all).slice(0, 10).map(n => ({num: n, count: counts[n]})),
+                n5: all.sort((a, b) => fullHistory.findIndex(h => h.numbers.includes(b)) - fullHistory.findIndex(h => h.numbers.includes(a))).slice(0, 10).map(n => ({num: n, count: counts[n]})),
+                n6: rnd(all.filter(n => parseInt(n) <= 10 && !last2.includes(n))).map(n => ({num: n, count: counts[n]})),
+                n7: rnd(all.filter(n => counts5[n] >= 3)).map(n => ({num: n, count: counts[n]}))
             };
         }
 
-        function renderPrediction(counts, groups) {
-            let used = [];
-            const pick = (g, c) => {
-                if (!g) return [];
-                const res = g.map(i => i.num).filter(n => !used.includes(n)).sort(() => 0.5 - Math.random()).slice(0, c);
-                used.push(...res);
-                return res.map(n => ({num: n, count: counts[n] || 0}));
-            };
-            const high = Object.keys(counts).filter(n => counts[n] >= 3).map(n => ({num: n}));
+        function renderAll() {
+            if (!fullHistory.length) return;
+            const history = fullHistory.slice(0, currentLimit);
+            let counts = {};
+            for (let i = 1; i <= 80; i++) counts[i.toString().padStart(2, '0')] = 0;
+            history.map(h => h.numbers).flat().forEach(n => counts[n]++);
             
-            let res = [];
-            if (strat === 'random') {
-                const allNumbers = Array.from({length: 80}, (_, i) => (i+1).toString().padStart(2, '0')).map(n => ({num: n}));
-                res = pick(allNumbers, currentBallCount);
-            } else if (strat === 'hot') {
-                res.push(...pick(high, 2));
-                res.push(...pick(groups.n3, 2));
-                res.push(...pick(groups.n4, 1));
-                res.push(...pick(groups.n7, 1));
-            } else if (strat === 'balanced') {
-                res.push(...pick(high, 1));
-                res.push(...pick(groups.n3, 1));
-                res.push(...pick(groups.n2, 2));
-                res.push(...pick(groups.n6, 2));
-            } else if (strat === 'luck') {
-                res.push(...pick(high, 1));
-                res.push(...pick(groups.n6, 2));
-                res.push(...pick(groups.n5, 1));
-                res.push(...pick(groups.n7, 2));
-            }
-            const finalPicks = res.slice(0, currentBallCount);
-            document.getElementById('pred-box').innerHTML = finalPicks.map(i => `<div class="ball bg-gradient-to-tr from-yellow-400 to-yellow-600 text-slate-900 shadow-xl">${i.num}<sub>.${i.count}</sub></div>`).join('');
+            const groups = calculateNGroups(history, counts);
+            renderProbabilityRank(counts);
+            renderStrategies(history, counts);
+            renderPrediction(counts);
+            renderNGroups(groups); // 執行屬性分析渲染
+            renderHistoryList(history);
         }
 
-        function changeBallCount(c) {
-            currentBallCount = c;
-            updateBallCountUI(c);
-            renderAll();
+        function renderProbabilityRank(counts) {
+            const entries = Object.entries(counts);
+            const top10 = [...entries].sort((a, b) => b[1] - a[1]).slice(0, 10);
+            const low10 = [...entries].sort((a, b) => a[1] - b[1]).slice(0, 10);
+            document.getElementById('prob-rank').innerHTML = top10.map(([num, count], i) => `<div class="flex justify-between border-b border-slate-700 py-2"><span>${i+1}. 球號 <b class="text-rose-400">${num}</b></span><span>出現 <b>${count}</b> 次</span></div>`).join('');
+            document.getElementById('prob-low-rank').innerHTML = low10.map(([num, count], i) => `<div class="flex justify-between border-b border-slate-700 py-2"><span>${i+1}. 球號 <b class="text-blue-400">${num}</b></span><span>出現 <b>${count}</b> 次</span></div>`).join('');
         }
 
-        function updateBallCountUI(c) {
-            document.querySelectorAll('.count-btn').forEach(b => b.classList.remove('count-active', 'ring-2', 'ring-white/50'));
-            document.getElementById('btn-count-' + c).classList.add('count-active', 'ring-2', 'ring-white/50');
-        }
+        function renderStrategies(history, counts) {
+            if (history.length < 2) return;
+            const latestNums = history[0].numbers;
+            const prevNums = history[1].numbers;
+            const allNums = Array.from({length: 80}, (_, i) => (i+1).toString().padStart(2, '0'));
 
-        function renderStrategies() {
-            if (fullHistory.length < 10) return;
-            const latestPeriodNums = fullHistory[0].numbers; 
-            
-            // --- 原本 3 位脆友邏輯 ---
             let trailFreq = {};
-            for (let i = 1; i < fullHistory.length; i++) {
-                const pastCurrent = fullHistory[i].numbers;
-                const pastNext = fullHistory[i-1].numbers;
-                const matches = latestPeriodNums.filter(n => pastCurrent.includes(n));
-                if (matches.length > 0) {
-                    pastNext.forEach(n => { trailFreq[n] = (trailFreq[n] || 0) + 1; });
+            for (let i = 1; i < history.length; i++) {
+                if (latestNums.some(n => history[i].numbers.includes(n))) {
+                    history[i-1].numbers.forEach(n => trailFreq[n] = (trailFreq[n] || 0) + 1);
                 }
             }
-            const xijPicks = Object.entries(trailFreq).sort((a, b) => b[1] - a[1]).slice(0, 6).map(item => item[0]).sort();
+            const xijPool = Object.entries(trailFreq).sort((a,b)=>b[1]-a[1]).slice(0, 15).map(e=>e[0]);
             
-            const last5History = fullHistory.slice(0, 5);
-            let chengFreq = {};
-            last5History.forEach(h => h.numbers.forEach(n => { chengFreq[n] = (chengFreq[n] || 0) + 1; }));
-            const chengPicks = latestPeriodNums.map(n => ({ num: n, count: chengFreq[n] || 0 })).sort((a, b) => b.count - a.count).slice(0, 6).map(x => x.num).sort();
-            
-            const allNums = Array.from({length: 80}, (_, i) => (i+1).toString().padStart(2, '0'));
-            const zhongPicks = allNums.sort(() => 0.5 - Math.random()).slice(0, 6).sort();
+            const h5 = fullHistory.slice(0, 5);
+            let f5 = {}; h5.forEach(h => h.numbers.forEach(n => f5[n] = (f5[n]||0)+1));
+            const chengPool = [...prevNums].sort((a,b)=>(f5[b]||0)-(f5[a]||0));
 
-            // --- 新增 3 位脆友邏輯 ---
-            // Shawn 1 (10期連開 + 同出): 抓近10期頻率最高者作為同出推薦
-            const last10History = fullHistory.slice(0, 10);
-            let shawnFreq = {};
-            last10History.forEach(h => h.numbers.forEach(n => { shawnFreq[n] = (shawnFreq[n]||0) + 1; }));
-            const shawn1Picks = Object.entries(shawnFreq).sort((a,b) => b[1] - a[1]).slice(0, 6).map(i => i[0]).sort();
+            const shawnPool = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0, 15).map(e=>e[0]);
+            let tailMap = {}; latestNums.forEach(n => { const t = n.slice(-1); tailMap[t] = (tailMap[t]||0)+1; });
+            const bestTail = Object.entries(tailMap).sort((a,b)=>b[1]-a[1])[0][0];
+            const tailPool = allNums.filter(n => n.endsWith(bestTail));
+            const serialPool = allNums.filter(n => latestNums.includes((parseInt(n)-1).toString().padStart(2,'0')) || latestNums.includes((parseInt(n)+1).toString().padStart(2,'0')));
 
-            // 小天 (追熱門 + 尾數): 抓熱門號且挑選其尾數相關號碼
-            const hotNums = Object.entries(shawnFreq).sort((a,b) => b[1] - a[1]).slice(0, 10).map(i => i[0]);
-            const selectedTail = hotNums[0] ? hotNums[0].slice(-1) : '5';
-            const xiaoTianPicks = allNums.filter(n => n.endsWith(selectedTail)).slice(0, 6).sort();
+            const strats = [
+                { name: 'Xij', color: 'text-yellow-500', pool: xijPool },
+                { name: '承', color: 'text-emerald-400', pool: chengPool },
+                { name: '中的', color: 'text-blue-400', pool: allNums },
+                { name: 'Shawn', color: 'text-orange-400', pool: shawnPool },
+                { name: '小天', color: 'text-pink-400', pool: tailPool },
+                { name: '暴暴龍', color: 'text-purple-400', pool: serialPool }
+            ];
 
-            // Shawn 2 (追連續號 + 熱門): 上期號碼(連續潛力) + 總體熱門
-            const shawn2Picks = Array.from(new Set([...latestPeriodNums.slice(0,3), ...hotNums.slice(0,3)])).sort().slice(0,6);
-
-            document.getElementById('strat-logic').innerHTML = `
-                <div class="pb-2 border-b border-slate-700 font-bold"><span class="text-slate-400">Xij的選球邏輯:</span><span class="text-yellow-500 ml-2">${xijPicks.join(' ')}</span></div>
-                <div class="py-2 border-b border-slate-700 font-bold"><span class="text-slate-400">承的選球邏輯:</span><span class="text-emerald-400 ml-2">${chengPicks.join(' ')}</span></div>
-                <div class="py-2 border-b border-slate-700 font-bold"><span class="text-slate-400">中的選球邏輯:</span><span class="text-blue-400 ml-2">${zhongPicks.join(' ')}</span></div>
-                <div class="py-2 border-b border-slate-700 font-bold"><span class="text-indigo-400">Shawn的選球邏輯:</span><span class="text-yellow-500 ml-2">${shawn1Picks.join(' ')}</span></div>
-                <div class="py-2 border-b border-slate-700 font-bold"><span class="text-indigo-400">小天的選球邏輯:</span><span class="text-emerald-400 ml-2">${xiaoTianPicks.join(' ')}</span></div>
-                <div class="pt-2 font-bold"><span class="text-indigo-400">暴暴龍的選球邏輯:</span><span class="text-blue-400 ml-2">${shawn2Picks.join(' ')}</span></div>`;
+            document.getElementById('expert-title').innerText = `💡 脆友 ${expertBallCount}球 的攻略推薦`;
+            document.getElementById('strat-logic').innerHTML = strats.map(s => {
+                const picks = shuffle([...(s.pool.length ? s.pool : allNums)]).slice(0, expertBallCount).sort();
+                return `
+                <div class="py-2 border-b border-slate-700 flex justify-between items-center">
+                    <div><span class="${s.color} font-bold">${s.name}:</span><span class="ml-2 text-slate-300 tracking-wider">${picks.join(' ')}</span></div>
+                    <button onclick="useExpertPicks(['${picks.join("','")}'])" class="use-strat-btn text-slate-400">選球</button>
+                </div>`;
+            }).join('');
         }
 
+        // 渲染屬性分組結果
         function renderNGroups(groups) {
             const nDefs = {
-                n1: "<b>N1 溫熱：</b>近 10 期高機率號碼。",
-                n2: "<b>N2 回歸：</b>近 10 期出現 2 次且近期未開。",
-                n3: "<b>N3 拖號：</b>根據上期推薦的拖牌。",
+                n1: "<b>N1 溫熱：</b>分析範圍內的高機率號碼。",
+                n2: "<b>N2 回歸：</b>出現 2 次且上期未開。",
+                n3: "<b>N3 拖號：</b>根據最新一期推薦的拖牌。",
                 n4: "<b>N4 共伴：</b>高共伴率組合。",
                 n5: "<b>N5 破冰：</b>連續最久未開號碼。",
                 n6: "<b>N6 未開小號：</b>近 2 期未開之 1~10。",
                 n7: "<b>N7 5熱：</b>近 5 期內強勢號碼。"
             };
-            document.getElementById('n-groups').innerHTML = Object.entries(nDefs).map(([k, def]) => `<div class="border-b border-slate-700 pb-4"><p class="text-emerald-300 mb-2">${def}</p><div class="flex flex-wrap gap-x-4">${groups[k].map(i => `<span class="text-slate-300 font-bold text-xl">${i.num}<sub>.${i.count}</sub></span>`).join('')}</div></div>`).join('');
+            document.getElementById('n-groups').innerHTML = Object.entries(nDefs).map(([k, def]) => `
+                <div class="border-b border-slate-700 pb-4">
+                    <p class="text-emerald-300 mb-2">${def}</p>
+                    <div class="flex flex-wrap gap-x-4">${groups[k].map(i => `<span class="text-slate-300 font-bold text-xl">${i.num}<sub>.${i.count}</sub></span>`).join('')}</div>
+                </div>`).join('');
         }
 
-        function renderHistoryList(history) {
-            document.getElementById('history-container').innerHTML = history.map(h => `<div class="flex flex-col md:flex-row bg-slate-900/40 p-3 rounded-lg border border-slate-700/50"><span class="text-indigo-400 font-mono font-bold md:w-32">${h.period}</span><span class="text-slate-300 flex-1 tracking-widest text-lg">${h.numbers.join(' ')}</span></div>`).join('');
+        function changeExpertBallCount(n) {
+            expertBallCount = n;
+            document.querySelectorAll('.eb-btn').forEach(b => b.classList.remove('expert-count-active'));
+            document.getElementById('eb-' + n).classList.add('expert-count-active');
+            renderAll(); 
         }
 
-        function renderProbabilityRank(history) {
-            let counts = {};
-            for (let i = 1; i <= 80; i++) counts[i.toString().padStart(2, '0')] = 0;
-            history.map(h => h.numbers).flat().forEach(n => counts[n]++);
-            
-            const entries = Object.entries(counts);
-            const top10 = [...entries].sort((a, b) => b[1] - a[1]).slice(0, 10);
-            document.getElementById('prob-rank').innerHTML = top10.map(([num, count], index) => 
-                `<div class="flex justify-between border-b border-slate-700 py-2"><span><span class="text-slate-500 mr-2">${index + 1}.</span> 球號 <b class="text-rose-400">${num}</b></span><span>出現 <b>${count}</b> 次</span></div>`
-            ).join('');
+        function useExpertPicks(list) { expertPicks = list.slice(0, currentBallCount); strat = 'expert'; renderAll(); }
 
-            const low10 = [...entries].sort((a, b) => a[1] - b[1]).slice(0, 10);
-            document.getElementById('prob-low-rank').innerHTML = low10.map(([num, count], index) => 
-                `<div class="flex justify-between border-b border-slate-700 py-2"><span><span class="text-slate-500 mr-2">${index + 1}.</span> 球號 <b class="text-blue-400">${num}</b></span><span>出現 <b>${count}</b> 次</span></div>`
-            ).join('');
+        function renderPrediction(counts) {
+            let res = [];
+            const sortedNums = Object.keys(counts).sort((a,b)=>counts[b]-counts[a]);
+            if (strat === 'expert' && expertPicks) {
+                res = expertPicks.map(n => ({ num: n, count: counts[n] || 0 }));
+            } else if (strat === 'random') {
+                res = shuffle(Object.keys(counts)).slice(0, currentBallCount).map(n=>({num:n,count:counts[n]||0}));
+            } else {
+                const poolSize = strat === 'hot' ? 10 : 15;
+                const pool = sortedNums.slice(0, poolSize);
+                res = shuffle(pool).slice(0, currentBallCount).map(n => ({ num: n, count: counts[n] }));
+            }
+            document.getElementById('pred-box').innerHTML = res.map(i => `<div class="ball bg-gradient-to-tr from-yellow-400 to-yellow-600 text-slate-900 shadow-xl">${i.num}<sub>.${i.count}</sub></div>`).join('');
         }
 
         function changeLimit(l) { 
             currentLimit = l; 
-            updateLimitUI(l); 
-            document.getElementById('top-title').innerHTML = `📈 近${l}期-出現機率排行榜 (Top 10)`;
-            document.getElementById('low-title').innerHTML = `📉 近${l}期-冷門號碼排行榜 (Low 10)`;
-            renderAll(); 
-        }
-
-        function updateLimitUI(l) { 
             document.querySelectorAll('.limit-btn').forEach(b => b.classList.remove('limit-active')); 
             document.getElementById(`btn-limit-${l}`).classList.add('limit-active'); 
+            document.getElementById('top-title').innerText = `📈 近${l}期-出現機率排行榜 (Top 10)`; 
+            document.getElementById('low-title').innerText = `📉 近${l}期-冷門號碼排行榜 (Low 10)`; 
+            expertPicks = null; renderAll(); 
         }
 
-        function setStrat(s) { 
-            strat = s; 
-            document.querySelectorAll('.strat-btn').forEach(b => b.classList.remove('ring-4', 'ring-white/50')); 
-            document.getElementById('btn-' + s).classList.add('ring-4', 'ring-white/50'); 
+        function changeBallCount(c) { 
+            currentBallCount = c; 
+            document.querySelectorAll('.count-btn').forEach(b => b.classList.remove('count-active')); 
+            document.getElementById('btn-count-' + c).classList.add('count-active'); 
             renderAll(); 
         }
+        function setStrat(s) { strat = s; expertPicks = null; document.querySelectorAll('.strat-btn').forEach(b => b.classList.remove('ring-4', 'ring-white/50')); document.getElementById('btn-' + s).classList.add('ring-4', 'ring-white/50'); renderAll(); }
+        function renderHistoryList(history) { document.getElementById('history-container').innerHTML = history.map(h => `<div class="bg-slate-900/40 p-3 rounded-lg border border-slate-700/50 flex flex-col md:flex-row"><span class="text-indigo-400 font-mono font-bold md:w-32">${h.period}</span><span class="text-slate-300 flex-1 tracking-widest text-lg">${h.numbers.join(' ')}</span></div>`).join(''); }
         
         window.onload = initRealtimeSync;
     </script>
