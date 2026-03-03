@@ -12,17 +12,18 @@
         .ball { width: 44px; height: 44px; font-size: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; position: relative; }
         sub { font-size: 0.7rem; position: absolute; bottom: 2px; right: 4px; font-weight: 900; }
         .limit-active { background-color: #4f46e5 !important; border-color: #818cf8 !important; box-shadow: 0 0 10px rgba(129, 140, 248, 0.4); }
+        .count-active { background-color: #eab308 !important; border-color: #fde047 !important; color: #0f172a !important; transform: scale(1.05); box-shadow: 0 0 10px rgba(234, 179, 8, 0.4); }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-200 p-4 font-sans leading-relaxed">
     <div class="max-w-3xl mx-auto space-y-8">
         <header class="bg-slate-800 p-6 rounded-xl border border-slate-700 flex flex-col md:flex-row justify-between items-center gap-4 shadow-lg">
             <div class="flex-1">
-                <h1 class="text-2xl font-bold text-yellow-400 flex items-center gap-2"> 數字 AI 分析儀</h1>
-                 <h3 class="text-2xl font-bold text-red-400 flex items-center gap-2">以上信息僅供參考，使用前請自行確認其準確性</h3>
-                 <h3 class="text-2xl font-bold text-red-400 flex items-center gap-2">本內容僅供參考，使用者需自行承擔風險</h3>
+                <h1 class="text-2xl font-bold text-yellow-400 flex items-center gap-2">🎰 數字 AI 分析儀</h1>
+                 <h3 class="text-sm font-bold text-red-400 flex items-center gap-2 mt-2">以上信息僅供參考，使用前請自行確認其準確性</h3>
+                 <h3 class="text-sm font-bold text-red-400 flex items-center gap-2">本內容僅供參考，使用者需自行承擔風險</h3>
  
-                <p id="cur-period" class="text-indigo-400 font-mono text-lg mt-1 tracking-tight">連線中...</p>
+                <p id="cur-period" class="text-indigo-400 font-mono text-lg mt-4 tracking-tight">連線中...</p>
                 <p id="update-time" class="text-emerald-400 font-bold text-base mt-1 italic">等待數據同步...</p>
             </div>
             
@@ -59,8 +60,20 @@
         </div>
 
         <div class="bg-slate-800 p-8 rounded-2xl border-t-8 border-yellow-500 shadow-2xl">
-            <h2 class="text-xl font-bold text-yellow-500 mb-6 text-center tracking-widest">🔮 AI 核心預測 (6球模式) 小數點是X期 出現的次數</h2>
-            <div id="pred-box" class="flex justify-around mb-8"></div>
+            <h2 class="text-xl font-bold text-yellow-500 mb-2 text-center tracking-widest">🔮 AI 核心預測</h2>
+            <p class="text-center text-slate-400 text-xs mb-6">小數點後為該期內出現的次數</p>
+            
+            <div class="flex flex-wrap justify-center gap-2 mb-8">
+                <button onclick="changeBallCount(1)" id="btn-count-1" class="count-btn bg-slate-700 px-4 py-2 rounded-lg font-bold hover:bg-yellow-500 transition-all border border-transparent">1球</button>
+                <button onclick="changeBallCount(2)" id="btn-count-2" class="count-btn bg-slate-700 px-4 py-2 rounded-lg font-bold hover:bg-yellow-500 transition-all border border-transparent">2球</button>
+                <button onclick="changeBallCount(3)" id="btn-count-3" class="count-btn bg-slate-700 px-4 py-2 rounded-lg font-bold hover:bg-yellow-500 transition-all border border-transparent">3球</button>
+                <button onclick="changeBallCount(4)" id="btn-count-4" class="count-btn bg-slate-700 px-4 py-2 rounded-lg font-bold hover:bg-yellow-500 transition-all border border-transparent">4球</button>
+                <button onclick="changeBallCount(5)" id="btn-count-5" class="count-btn bg-slate-700 px-4 py-2 rounded-lg font-bold hover:bg-yellow-500 transition-all border border-transparent">5球</button>
+                <button onclick="changeBallCount(6)" id="btn-count-6" class="count-btn count-active px-4 py-2 rounded-lg font-bold border border-transparent">6球</button>
+            </div>
+
+            <div id="pred-box" class="flex flex-wrap justify-center gap-4 mb-8"></div>
+            
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <button onclick="setStrat('hot')" id="btn-hot" class="strat-btn bg-orange-600 p-3 rounded-xl font-bold text-base ring-4 ring-white/50">🔥 追熱門</button>
                 <button onclick="setStrat('balanced')" id="btn-balanced" class="strat-btn bg-emerald-600 p-3 rounded-xl font-bold text-base">⚖️ 均衡</button>
@@ -108,6 +121,7 @@
         let fullHistory = [];
         let currentLimit = 10;
         let strat = 'hot';
+        let currentBallCount = 6; // 預設 6 球
 
         function initRealtimeSync() {
             const dataRef = database.ref('bingo_data');
@@ -130,7 +144,7 @@
             numsOnly.flat().forEach(n => counts[n] = (counts[n] || 0) + 1);
             const groups = calculateNGroups(history, counts);
             renderPrediction(counts, groups);
-            renderStrategies(); // 此處觸發脆友攻略更新
+            renderStrategies();
             renderStars(groups);
             renderNGroups(groups);
             renderHistoryList(history);
@@ -161,39 +175,63 @@
             };
         }
 
+        // 修改預測邏輯：依球數調整組成比例
         function renderPrediction(counts, groups) {
             let used = [];
             const pick = (g, c) => {
+                if (!g) return [];
                 const res = g.map(i => i.num).filter(n => !used.includes(n)).sort(() => 0.5 - Math.random()).slice(0, c);
                 used.push(...res);
                 return res.map(n => ({num: n, count: counts[n] || 0}));
             };
-            const high = Object.keys(counts).filter(n => counts[n] >= 3);
+            const high = Object.keys(counts).filter(n => counts[n] >= 3).map(n => ({num: n}));
             
             let res = [];
             if (strat === 'random') {
-                const allNumbers = Array.from({length: 80}, (_, i) => (i+1).toString().padStart(2, '0'));
-                const shuffled = allNumbers.sort(() => 0.5 - Math.random());
-                res = shuffled.slice(0, 6).map(n => ({num: n, count: counts[n] || 0}));
+                const allNumbers = Array.from({length: 80}, (_, i) => (i+1).toString().padStart(2, '0')).map(n => ({num: n}));
+                res = pick(allNumbers, currentBallCount);
             } else if (strat === 'hot') {
-                res = [...pick(high.map(n=>({num:n})), 2), ...pick(groups.n3, 2), ...pick(groups.n7, 2)];
+                // 邏輯：高機率(2) > N3拖號(2) > N4共伴(1) > N7熱門(1)
+                res.push(...pick(high, 2));
+                res.push(...pick(groups.n3, 2));
+                res.push(...pick(groups.n4, 1));
+                res.push(...pick(groups.n7, 1));
             } else if (strat === 'balanced') {
-                res = [...pick(high.map(n=>({num:n})), 1), ...pick(groups.n3, 1), ...pick(groups.n2, 2), ...pick(groups.n6, 2)];
-            } else {
-                res = [...pick(high.map(n=>({num:n})), 1), ...pick(groups.n6, 2), ...pick(groups.n5, 1), ...pick(groups.n7, 2)];
+                // 邏輯：高機率(1) > N3拖號(1) > N2回歸(2) > N6小號(2)
+                res.push(...pick(high, 1));
+                res.push(...pick(groups.n3, 1));
+                res.push(...pick(groups.n2, 2));
+                res.push(...pick(groups.n6, 2));
+            } else if (strat === 'luck') {
+                // 邏輯：高機率(1) > N6小號(2) > N5破冰(1) > N7熱門(2)
+                res.push(...pick(high, 1));
+                res.push(...pick(groups.n6, 2));
+                res.push(...pick(groups.n5, 1));
+                res.push(...pick(groups.n7, 2));
             }
             
-            document.getElementById('pred-box').innerHTML = res.map(i => `<div class="ball bg-gradient-to-tr from-yellow-400 to-yellow-600 text-slate-900 shadow-xl">${i.num}<sub>.${i.count}</sub></div>`).join('');
+            // 根據選擇球數進行截取顯示
+            const finalPicks = res.slice(0, currentBallCount);
+            
+            document.getElementById('pred-box').innerHTML = finalPicks.map(i => `<div class="ball bg-gradient-to-tr from-yellow-400 to-yellow-600 text-slate-900 shadow-xl">${i.num}<sub>.${i.count}</sub></div>`).join('');
         }
 
-        // 優化：脆友攻略動態渲染邏輯
+        // 新增：處理球數切換
+        function changeBallCount(c) {
+            currentBallCount = c;
+            updateBallCountUI(c);
+            renderAll();
+        }
+
+        function updateBallCountUI(c) {
+            document.querySelectorAll('.count-btn').forEach(b => b.classList.remove('count-active', 'ring-2', 'ring-white/50'));
+            document.getElementById('btn-count-' + c).classList.add('count-active', 'ring-2', 'ring-white/50');
+        }
+
         function renderStrategies() {
             if (fullHistory.length < 5) return;
-
             const latestPeriodNums = fullHistory[0].numbers; 
             let trailFreq = {};
-
-            // 1. xij 的選球邏輯 (拖號) - 隨期數變動重新計算
             for (let i = 1; i < fullHistory.length; i++) {
                 const pastCurrent = fullHistory[i].numbers;
                 const pastNext = fullHistory[i-1].numbers;
@@ -203,34 +241,16 @@
                 }
             }
             const xijPicks = Object.entries(trailFreq).sort((a, b) => b[1] - a[1]).slice(0, 6).map(item => item[0]).sort();
-
-            // 2. 承 的選球邏輯 (熱門比對近5期) - 隨期數變動重新計算
             const last5History = fullHistory.slice(0, 5);
             let chengFreq = {};
             last5History.forEach(h => h.numbers.forEach(n => { chengFreq[n] = (chengFreq[n] || 0) + 1; }));
-            const chengPicks = latestPeriodNums
-                .map(n => ({ num: n, count: chengFreq[n] || 0 }))
-                .sort((a, b) => b.count - a.count)
-                .slice(0, 6).map(x => x.num).sort();
-
-            // 3. 中 的選球邏輯 (隨機6顆) - 每次刷新或變動時產生新號碼
+            const chengPicks = latestPeriodNums.map(n => ({ num: n, count: chengFreq[n] || 0 })).sort((a, b) => b.count - a.count).slice(0, 6).map(x => x.num).sort();
             const allNums = Array.from({length: 80}, (_, i) => (i+1).toString().padStart(2, '0'));
             const zhongPicks = allNums.sort(() => 0.5 - Math.random()).slice(0, 6).sort();
-
             document.getElementById('strat-logic').innerHTML = `
-                <div class="pb-2 border-b border-slate-700 font-bold">
-                    <span class="text-slate-400">脆友xij的選球邏輯:</span>
-                    <span class="text-yellow-500 ml-2">${xijPicks.join(' ')}</span>
-                </div>
-                <div class="py-2 border-b border-slate-700 font-bold">
-                    <span class="text-slate-400">承的選球邏輯:</span>
-                    <span class="text-emerald-400 ml-2">${chengPicks.join(' ')}</span>
-                </div>
-                <div class="pt-2 font-bold">
-                    <span class="text-slate-400">中的選球邏輯:</span>
-                    <span class="text-blue-400 ml-2">${zhongPicks.join(' ')}</span>
-                </div>
-            `;
+                <div class="pb-2 border-b border-slate-700 font-bold"><span class="text-slate-400">脆友xij的選球邏輯:</span><span class="text-yellow-500 ml-2">${xijPicks.join(' ')}</span></div>
+                <div class="py-2 border-b border-slate-700 font-bold"><span class="text-slate-400">承的選球邏輯:</span><span class="text-emerald-400 ml-2">${chengPicks.join(' ')}</span></div>
+                <div class="pt-2 font-bold"><span class="text-slate-400">中的選球邏輯:</span><span class="text-blue-400 ml-2">${zhongPicks.join(' ')}</span></div>`;
         }
 
         function renderStars(groups) {
