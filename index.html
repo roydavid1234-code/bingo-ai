@@ -131,7 +131,7 @@
             numsOnly.flat().forEach(n => counts[n] = (counts[n] || 0) + 1);
             const groups = calculateNGroups(history, counts);
             renderPrediction(counts, groups);
-            renderStrategies(); 
+            renderStrategies(); // 攻略推薦入口
             renderStars(groups);
             renderNGroups(groups);
             renderHistoryList(history);
@@ -187,14 +187,14 @@
             document.getElementById('pred-box').innerHTML = res.map(i => `<div class="ball bg-gradient-to-tr from-yellow-400 to-yellow-600 text-slate-900 shadow-xl">${i.num}<sub>.${i.count}</sub></div>`).join('');
         }
 
-        // 1-2. 新增項目 ”承 的選球邏輯“
+        // 2. 優化：刷新頁面或期數變動時號碼自動變化
         function renderStrategies() {
             if (fullHistory.length < 5) return;
 
             const latestPeriodNums = fullHistory[0].numbers; 
             let trailFreq = {};
 
-            // xij 選球邏輯 (拖號)
+            // 脆友xij的選球邏輯 (拖號)
             for (let i = 1; i < fullHistory.length; i++) {
                 const pastCurrent = fullHistory[i].numbers;
                 const pastNext = fullHistory[i-1].numbers;
@@ -205,26 +205,31 @@
             }
             const xijPicks = Object.entries(trailFreq).sort((a, b) => b[1] - a[1]).slice(0, 6).map(item => item[0]).sort();
 
-            // 承 的選球邏輯：比對最新號碼與近 5 期的規律
+            // 承的選球邏輯：比對最新熱門與近5期規律
             const last5History = fullHistory.slice(0, 5);
             let chengFreq = {};
             last5History.forEach(h => h.numbers.forEach(n => { chengFreq[n] = (chengFreq[n] || 0) + 1; }));
-            
             const chengPicks = latestPeriodNums
                 .map(n => ({ num: n, count: chengFreq[n] || 0 }))
                 .sort((a, b) => b.count - a.count)
-                .slice(0, 6)
-                .map(x => x.num)
-                .sort();
+                .slice(0, 6).map(x => x.num).sort();
+
+            // 1. 新增項目：中的選球邏輯 (隨機6個幸運號碼)
+            const allNums = Array.from({length: 80}, (_, i) => (i+1).toString().padStart(2, '0'));
+            const zhongPicks = allNums.sort(() => 0.5 - Math.random()).slice(0, 6).sort();
 
             document.getElementById('strat-logic').innerHTML = `
                 <div class="pb-2 border-b border-slate-700 font-bold">
-                    <span class="text-slate-400">xij的選球邏輯:</span>
+                    <span class="text-slate-400">脆友xij的選球邏輯:</span>
                     <span class="text-yellow-500 ml-2">${xijPicks.join(' ')}</span>
                 </div>
-                <div class="pt-2 font-bold">
+                <div class="py-2 border-b border-slate-700 font-bold">
                     <span class="text-slate-400">承的選球邏輯:</span>
                     <span class="text-emerald-400 ml-2">${chengPicks.join(' ')}</span>
+                </div>
+                <div class="pt-2 font-bold">
+                    <span class="text-slate-400">中的選球邏輯:</span>
+                    <span class="text-blue-400 ml-2">${zhongPicks.join(' ')}</span>
                 </div>
             `;
         }
